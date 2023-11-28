@@ -1,6 +1,11 @@
 import RPi.GPIO as GPIO
 import time
 
+class GuideMotorStep( Enum ) :
+    stop = 0    
+    fail = 1
+    good = 2
+
 class DCMotor:
     def __init__(self, enable_pin, input1_pin, input2_pin):
         # DC 모터 초기화
