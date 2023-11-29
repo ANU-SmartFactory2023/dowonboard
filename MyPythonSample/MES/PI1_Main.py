@@ -14,13 +14,12 @@ class Step( Enum ) :
     photo_part_detect_sensor_check = 50
     stop_rail = 100
     photo_process = 150
-    servo_motor_drive =300  
+    servo_motor_drive =300 
+    go_rail_next = 350 
+    process_check = 370
     sonic_part_detect_sensor_check= 400
     slow_rail = 500
     
-    
-
-   
 
 currnet_step = Step.start
 running = True
@@ -33,7 +32,7 @@ pass_or_fail:bool = False
 INPUT_PART_SENSOR_PIN_NO = 17
 PHOTO_PART_SENSOR_PIN_NO = 18
 SONIC_PART_SENSOR_PIN_NO1 = 19
-SONIC_PART_SENSOR_PIN_NO2 = 20
+
 
 while running:
     print( "running : " + str( running ) )# 디버깅확인용
@@ -41,7 +40,8 @@ while running:
     match currnet_step :
         case Step.start: 
             print( Step.start )
-            motor.doGuideMotor( GuideMotorStep.stop )
+            motor.doGuideMotor( GuideMotorStep.stop )   #서보정렬
+            motor.stopconveyer  #dc정지
             #시작하기전에 검사할것들: 통신확인여부, 모터정렬, 센서 검수
             currnet_step = Step.input_part_sensor_check
         
@@ -61,7 +61,7 @@ while running:
             
         case Step.go_rail:
             print( Step.go_rail )
-            result = motor.#DC모터 구동            
+            result = motor.dodon#DC모터 구동            
             currnet_step = Step.end
 
         case Step.photo_part_detect_sensor_check:
@@ -89,18 +89,26 @@ while running:
                 motor_step = GuideMotorStep.fail
 
             motor.doGuideMotor( motor_step )
+            currnet_step = Step.go_rail_next
 
         case Step.go_rail_next:
             print( Step.go_rail )
             result = motor.#DC모터 구동            
-            currnet_step = Step.end
+            currnet_step = Step.process_check
             
+        case Step.process_check:
+            if(pass_or_fail == 'False'):
+                time.sleep(5)
+                currnet_step = Step.start
+            else :
+                currnet_step = Step.sonic_part_detect_sensor_check
+
         case Step.sonic_part_detect_sensor_check:
             print( Step.sonic_part_detect_sensor_check )
-            if( sensor.get_sensor_state(SONIC_PART_SENSOR_PIN_NO) ):                
+            if( sensor.get_sensor_state(SONIC_PART_SENSOR_PIN_NO1) ):                
                 currnet_step = Step.slow_rail
 
         case Step.slow_rail:
             print( Step.slow_rail )
-            result = motor.#DC모터 정지            
+            result = motor.#DC모터 천천히            
             currnet_step = Step.start
