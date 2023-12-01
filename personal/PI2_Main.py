@@ -1,6 +1,19 @@
-
 from enum import Enum
 import time
+import os
+import sys
+
+# 현재 스크립트 파일의 디렉토리 경로
+current_path = os.path.dirname(os.path.abspath(__file__))
+
+# common 폴더의 경로 지정
+common_folder_path = os.path.join(current_path, 'C:\\SFProject\\dowonboard\\common')
+
+# sys.path에 common 폴더 경로 추가
+sys.path.append(common_folder_path) 
+
+# 이제 common 폴더 안에 있는 모듈들을 import 할 수 있음
+from model import SensorModel, ProcessModel
 from motor import Motor, GuideMotorStep
 from sensor import Sensor
 from server_communication import ServerComm
@@ -19,8 +32,9 @@ class Step( Enum ) :    #각 스텝별 이름, 동사형으로 지을것, 무엇
     go_rail_next = 800
 
 currnet_step = Step.start   #기본설정
-running = True  
 
+running = True  
+motor = Motor()  
 sensor = Sensor()   #센서 참조
 server_comm = ServerComm()  #서버참조
 
