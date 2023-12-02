@@ -1,3 +1,4 @@
+#motor.py
 import RPi.GPIO as GPIO
 from time import sleep
 from enum import Enum
@@ -12,7 +13,20 @@ class GuideMotorStep(Enum):
     re = 6
 
 class Motor:
-    def __init__(self, servo_pin):
+    def servo_init(self, servo_pin):
+
+        # 서보 모터 초기화
+        self.servo_pin = servo_pin
+        GPIO.setup(self.servo_pin, GPIO.OUT)
+
+        self.pwm_servo = GPIO.PWM(self.servo_pin, 50)  # 주파수 50Hz로 PWM 설정
+        self.pwm_servo.start(0)  # 초기 듀티 사이클은 0으로 설정
+        # 5 서보모터 45, 135도 구동
+        self.final_angle = {"goodGrade": 45, "badGrade": 135}
+
+        return self
+
+    def dc_init(self, dc_enable_pin, dc_input1_pin, dc_input2_pin):
         # # DC 모터 초기화
         self.dc_enable_pin = dc_enable_pin
         self.dc_input1_pin = dc_input1_pin
@@ -26,14 +40,8 @@ class Motor:
         self.pwm_dc = GPIO.PWM(self.dc_enable_pin, 1000)  # 주파수 1000Hz로 PWM 설정
         self.pwm_dc.start(0)  # 초기 듀티 사이클은 0으로 설정
 
-        # 서보 모터 초기화
-        self.servo_pin = servo_pin
-        GPIO.setup(self.servo_pin, GPIO.OUT)
+        return self
 
-        self.pwm_servo = GPIO.PWM(self.servo_pin, 50)  # 주파수 50Hz로 PWM 설정
-        self.pwm_servo.start(0)  # 초기 듀티 사이클은 0으로 설정
-        # 5 서보모터 45, 135도 구동
-        self.final_angle = {"goodGrade": 45, "badGrade": 135}
 
     def changeDutyCycle(self, angle):
         # 주어진 각도에 따른 duty cycle 계산
